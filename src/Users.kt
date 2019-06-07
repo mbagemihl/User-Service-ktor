@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.Table
 import java.util.*
 
 object Users : Table() {
-    val id = uuid("id").primaryKey().autoIncrement()
+    val id = uuid("id").primaryKey()
     val name = text("name")
     val avatar = text("avatar")
     val gender = text("gender")

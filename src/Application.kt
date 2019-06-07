@@ -23,6 +23,8 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
 
+
+    val userController = UserController()
     fun initDB() {
         val config = HikariConfig("/hikari.properties")
         config.schema = "userSchema"
@@ -44,21 +46,16 @@ fun Application.module(testing: Boolean = false) {
     routing {
         post("/users") {
             val requestUser = call.receive<RequestUser>()
-            val userObject = User(UUID.randomUUID(),requestUser.name,requestUser.gender,requestUser.adult,requestUser.avatar)
-
-            userSet.add(userObject)
-            call.respond(userSet)
+            call.respond(userController.insert(User(UUID.randomUUID(),requestUser.name,requestUser.gender,requestUser.adult,requestUser.avatar)))
         }
 
         get ("/users") {
-            call.respond(UserController().getAll())
+            call.respond(userController.getAll())
         }
 
         delete("/users/{id}") {
-            val userId = call.parameters["id"]
-            val user = userSet.find { it.id.toString() == userId }
-            userSet.drop(userSet.indexOf(user))
-            call.respond(userSet)
+            UserController().delete(call.parameters["id"]!!)
+            call.respond(userController.getAll())
         }
     }
 }
