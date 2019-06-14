@@ -26,3 +26,7 @@ data class RequestUser(
     val adult: Boolean,
     val avatar: Avatar
 )
+
+enum class Gender { MALE, FEMALE, NONE }
+
+enum class Avatar{OCTOCAT, MARIO, ASH, POKEBALL, BULBASAUR, CHARMANDER, SQUIRTLE, KIRBY}
