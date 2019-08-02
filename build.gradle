@@ -38,16 +38,25 @@ dependencies {
     compile "ch.qos.logback:logback-classic:$logback_version"
     compile "io.ktor:ktor-server-core:$ktor_version"
     compile "io.ktor:ktor-jackson:$ktor_version"
-    runtime group: 'org.postgresql', name: 'postgresql', version: '42.1.4'
     compile group: 'org.jetbrains.exposed', name: 'exposed', version: '0.14.4'
     compile group: 'com.zaxxer', name: 'HikariCP', version: '3.2.0'
+    compile "io.ktor:ktor-html-builder:$ktor_version"
+
+    implementation "io.ktor:ktor-auth:$ktor_version"
+    implementation "io.ktor:ktor-locations:$ktor_version"
+    implementation "io.ktor:ktor-client-apache:$ktor_version"
+
+    runtime group: 'org.postgresql', name: 'postgresql', version: '42.1.4'
+
     testCompile "io.ktor:ktor-server-tests:$ktor_version"
-    testImplementation "io.mockk:mockk:1.9.3"
     testCompile "org.mockito:mockito-core:2.28.2"
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.0'
+
+    testImplementation "io.mockk:mockk:1.9.3"
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
-    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.0'
 }
 
 mainClassName = 'io.ktor.server.netty.EngineMain' // Starting with 1.0.0-beta-3

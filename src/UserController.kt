@@ -32,11 +32,11 @@ class UserController {
     fun insert(user: User) {
         transaction {
             Users.insert {
-                it[Users.adult] = user.adult
-                it[Users.avatar] = user.avatar.toString()
-                it[Users.name] = user.name
-                it[Users.gender] = user.gender.toString()
-                it[Users.id] = user.id
+                it[adult] = user.adult
+                it[avatar] = user.avatar.toString()
+                it[name] = user.name
+                it[gender] = user.gender.toString()
+                it[id] = user.id
             }
         }
     }

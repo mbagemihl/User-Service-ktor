@@ -1,12 +1,18 @@
 package de.novatec
 
 import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.client.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.http.*
+import io.ktor.locations.*
 import com.fasterxml.jackson.databind.*
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.ktor.client.engine.apache.Apache
+
+
 import io.ktor.jackson.*
 import io.ktor.features.*
 import io.ktor.util.pipeline.PipelineContext
@@ -16,7 +22,20 @@ import kotlin.collections.HashSet
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
+val loginProviders = listOf(
+    OAuthServerSettings.OAuth2ServerSettings(
+        name = "github",
+        authorizeUrl = "https://github.com/login/oauth/authorize",
+        accessTokenUrl = "https://github.com/login/oauth/access_token",
+        clientId = "63e9a2d434a15bff8a3e",
+        clientSecret = "9944bbfe361449ee2d5f7b6966bf33a53c1e986c"
+    )
+).associateBy { it.name }
 
+@KtorExperimentalLocationsAPI
+@Location("/login/{type?}") class login(val type: String = "github")
+
+@KtorExperimentalLocationsAPI
 @kotlin.jvm.JvmOverloads
 @Suppress("unused") // Referenced in application.conf
 fun Application.module(testing: Boolean = false) {
@@ -26,6 +45,38 @@ fun Application.module(testing: Boolean = false) {
         config.schema = "userSchema"
         val ds = HikariDataSource(config)
         Database.connect(ds)
+    }
+
+    install(Locations)
+    install(Authentication) {
+        oauth("gitHubOAuth") {
+            client = HttpClient(Apache)
+            providerLookup = { loginProviders[application.locations.resolve<login>(login::class, this).type] }
+            urlProvider = { url(login(it.name)) }
+        }
+
+        basic(name = "password") {
+            realm = "Ktor Server"
+            validate { credentials ->
+                if (credentials.name == "marcel" && credentials.password == "password") {
+                    UserIdPrincipal(credentials.name)
+                } else {
+                    null
+                }
+            }
+        }
+
+        basic(name = "apiKey") {
+            realm = "Ktor Server"
+            validate { credentials ->
+                if (credentials.name == "secretApiKey") {
+                    UserIdPrincipal("anonymous")
+                } else {
+                    null
+                }
+
+            }
+        }
     }
 
     install(ContentNegotiation) {
