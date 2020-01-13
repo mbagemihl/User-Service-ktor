@@ -17,7 +17,8 @@ import io.ktor.jackson.*
 import io.ktor.features.*
 import io.ktor.util.pipeline.PipelineContext
 import org.jetbrains.exposed.sql.Database
-import kotlin.collections.HashSet
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -42,9 +43,13 @@ fun Application.module(testing: Boolean = false) {
 
     fun initDB() {
         val config = HikariConfig("/hikari.properties")
-        config.schema = "userSchema"
+        config.schema = "public"
         val ds = HikariDataSource(config)
         Database.connect(ds)
+
+        transaction {
+            SchemaUtils.create(Users)
+        }
     }
 
     install(Locations)
